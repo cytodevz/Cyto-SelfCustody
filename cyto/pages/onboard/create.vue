@@ -76,6 +76,8 @@
                     <li class="step"></li>
                     <li class="step"></li>
                     <li class="step"></li>
+                    <li class="step"></li>
+
                 </ul>
 
 
@@ -234,13 +236,31 @@ export default {
                         //set next onoarding level
                         localStorage.setItem('onboardingLevel', '1');
 
+                        //get the wallet name used by the blockchain
                         const walletName = response.data.data.name;
+                        const encryptedPassphrase = response.data.data.encryptedPassphrase;
+                        const mnemonics = response.data.data.mnemonics;
 
+
+                        //encrypt it locally
                         const walletNameCipherText = this.encryptMessage(walletName);
+
 
                         //store the wallet name
                         localStorage.setItem('walletName', walletNameCipherText);
-                         
+                        console.log('walletnamegenerated: ', walletNameCipherText);
+
+                        //store the encrypted passphrase
+                        localStorage.setItem('encryptedPassphrase', encryptedPassphrase);
+
+                        const encryptedMnemonics = this.encryptMessage(mnemonics);
+
+                        //to be removed much after
+                        localStorage.setItem('encryptedMnemonics', encryptedMnemonics);
+
+
+                        console.log('encryptedPassphrase generated: ', walletNameCipherText);
+
 
 
                         //redirect to next level

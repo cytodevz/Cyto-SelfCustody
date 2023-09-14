@@ -9,8 +9,8 @@
                         <img src="/images/logo1.png" alt="Shoes" class="rounded-xl" />
                     </figure>
                     <div class="card-body items-center text-center">
-                        <h2 class="card-title">encrypt wallet!</h2>
-                        <p>Enter passkey here</p>
+                        <h2 class="card-title"> set passcode!</h2>
+                        <p> set passcode here</p>
                         <div class="card-actions flex justify-center">
                             <form action="#" id="PassKeyFormId">
                                 <div class="p-2">
@@ -21,12 +21,14 @@
 
                                     <div class="form-control">
                                         <div class="input-group">
-                                            <input required :type="showPassphrase ? 'text' : 'password'" minlength="8"
+                                            <input required :type="showConfirmPassphrase ? 'text' : 'password'"
                                                 placeholder="passphrase" v-model="passphrase"
                                                 class="input input-bordered" />
-                                            <button class="btn btn-square btn-primary" @click.prevent="togglePasswordVisibility()">
+
+                                            <button class="btn btn-square btn-primary"
+                                                @click.prevent="toggleConfirmPasswordVisibility()">
                                                 <!-- Eye icon for revealing/hiding password -->
-                                                {{ toggleText }}
+                                                {{ confirmPasswordToggleText }}
                                             </button>
                                         </div>
                                     </div>
@@ -36,8 +38,8 @@
                                     <div class="form-control">
                                         <div class="input-group">
                                             <input required :type="showConfirmPassphrase ? 'text' : 'password'"
-                                                minlength="15" placeholder="confirm passphrase" v-model="confirmPassphrase"
-                                                class="input input-bordered" />
+                                                  placeholder="confirm passphrase"
+                                                v-model="confirmPassphrase" class="input input-bordered" />
                                             <button class="btn btn-square"
                                                 @click.prevent="toggleConfirmPasswordVisibility()">
                                                 <!-- Eye icon for revealing/hiding password -->
@@ -50,6 +52,7 @@
                                     <button class="btn btn-wide btn-primary" :class="loading"
                                         @click.prevent="encryptWallet()">Create
                                     </button>
+
                                 </div>
 
                                 <!-- <div class="p-2">
@@ -107,6 +110,8 @@
                     <li class="step step-primary"></li>
                     <li class="step"></li>
                     <li class="step"></li>
+                    <li class="step"></li>
+
                 </ul>
 
 
@@ -195,26 +200,28 @@ export default {
         //     }
         // },
         validatePassword(password) {
-            if (password.length < 8) {
-                throw "Password must be at least 8 characters long.";
-            } else if (!/\d/.test(password)) {
-                throw "Password must contain at least one digit.";
-            } else if (!/[a-z]/.test(password)) {
-                throw "Password must contain at least one lowercase letter.";
-            } else if (!/[A-Z]/.test(password)) {
-                throw "Password must contain at least one uppercase letter.";
-            } else if (!/[!@#$%^&*()\-_=+{};:,<.>/?[\]\\|`~]/.test(password)) {
-                throw "Password must contain at least one special character.";
-            } else if (/\s/.test(password)) {
-                throw "Password must not contain whitespace.";
-            } else {
-                console.log("Password is strong.");
+            let isValid = false;
+
+            //check if it is null
+            if (password == null || password == '') {
+                throw "weak password!! Check if password is at least 8 characters long";
             }
+
+            // Check if password is at least 8 characters long
+            if (password.length < 6) {
+                throw "weak password!! Check if password is at least 8 characters long";
+            }
+
+            //if it gets here then all went well
+            isValid = true;
+
+
         },
 
 
 
-       
+
+
         confirmPassPhraseValidation() {
 
             if (this.passphrase != this.confirmPassphrase) {
@@ -248,7 +255,7 @@ export default {
 
                 console.log('passphrase to validate: ', this.passphrase)
 
-                if (this.passphrase == null ) {
+                if (this.passphrase == null) {
                     throw ("passphrase cannot be empty");
                 }
                 if (this.confirmPassphrase == null) {
@@ -317,7 +324,7 @@ export default {
         downloadPIC(myBlob) {
             // const myBlob = this.imgBlob;
 
-        //    console.log('img blob: ',this.imgBlob);
+            //    console.log('img blob: ',this.imgBlob);
 
             fetch(myBlob).then(res => res.blob())
                 .then(blobRes => {
@@ -367,7 +374,7 @@ export default {
 
         },
 
-        encryptWalletMethod() {
+        encryptWalletMethodOld() {
 
             //retrieve wallet name cipher text
             const walletNameCipherText = localStorage.getItem('walletName');
@@ -377,7 +384,7 @@ export default {
 
 
             const passKey = this.passphrase;
-                        console.log('passKey', this.passphrase);
+            console.log('passKey', this.passphrase);
 
 
             //encrypt using the user passkey
@@ -392,13 +399,13 @@ export default {
 
             const wallet_serialised = JSON.stringify(walletObjPlainText);
 
-            console.log('serialisedWallet',wallet_serialised);
-            console.log('actualPassPhrase: ', this.decryptMessageII(passphraseCipherText,this.passphrase));
+            console.log('serialisedWallet', wallet_serialised);
+            console.log('actualPassPhrase: ', this.decryptMessageII(passphraseCipherText, this.passphrase));
 
 
             const encryptedWallet = this.encryptMessageII(wallet_serialised, this.passphrase);
 
-            const passPhraseGenerated = this.decryptMessageII(passphraseCipherText,this.passphrase);
+            const passPhraseGenerated = this.decryptMessageII(passphraseCipherText, this.passphrase);
 
 
 
@@ -439,9 +446,9 @@ export default {
                         //download the encrypted wallet
 
                         //enerate QR code for wallet
-                         this.generateQR(encryptedWallet)
+                        this.generateQR(encryptedWallet)
 
-                        
+
                         this.downloadPIC();
 
 
@@ -463,6 +470,47 @@ export default {
 
 
         },
+
+        encryptWalletMethod() {
+
+            //retrieve wallet name cipher text
+            const walletNameCipherText = localStorage.getItem('walletName');
+
+            const passKey = this.passphrase;
+
+            //use the passkey stored in local sytorage
+            const encryptedPasskey = localStorage.getItem("encryptedPassphrase");
+
+
+
+
+            //create a wwallet object to be encrypted
+            const walletObjPlainText = {
+                wallet: walletNameCipherText,
+                passKey: encryptedPasskey
+
+            };
+            console.log('walletObjPlainText: ', walletObjPlainText);
+
+            const serialisedWallet = JSON.stringify(walletObjPlainText);
+
+
+            //encrypt wallet obj using the passkey provided
+            const encryptedWallet = this.encryptMessageII(serialisedWallet, this.passphrase);
+            
+            console.log('encryptedWallet: ', encryptedWallet);
+
+            //store the encrypted wallet
+            localStorage.setItem('encryptedWallet', encryptedWallet);
+
+            localStorage.setItem('onboardingLevel', '2');
+
+            //redirect to next level
+            this.$router.push('/onboard/save');
+
+
+
+        },
         displayErrorMessage(msg) {
             this.error.errordisplay = true;
             this.msg = msg
@@ -474,6 +522,7 @@ export default {
 
 
         },
+
 
         encryptWallet() {
 
@@ -540,8 +589,8 @@ export default {
         }
 
         function generatePassPhrase(passKey) {
-            const cipherText = encryptMessageII(generatedPassPhrase,passKey);
-            console.log('encrypted text: ', cipherText);           
+            const cipherText = encryptMessageII(generatedPassPhrase, passKey);
+            console.log('encrypted text: ', cipherText);
 
 
             return cipherText
