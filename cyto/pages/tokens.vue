@@ -480,7 +480,7 @@ export default {
         maxBodyLength: Infinity,
         url: uri,
         headers: {
-          'passphrase': cipheredPassPhrase,
+          'encryptedpassphrase': cipheredPassPhrase,
           'wallet': this.walletName,
           'Content-Type': 'application/json'
         },

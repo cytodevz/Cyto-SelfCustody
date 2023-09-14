@@ -314,7 +314,7 @@ export default {
   data() {
     return {
       loading: '',
-    //  runtimeconfig: useRuntimeConfig(),
+      //  runtimeconfig: useRuntimeConfig(),
       runtimeconfig: '',
       ltcBal: '****',
       walletName: '',
@@ -367,14 +367,14 @@ export default {
       //if the anount you want to receive is less than zero or it is equual to zero or it is null
       //let the query string be ignored
       if (amount == null || amount <= 0) {
-    //    const uri = `litecoin:${ltcAddress}?label=cyto%20wallet%20receive`;
+        //    const uri = `litecoin:${ltcAddress}?label=cyto%20wallet%20receive`;
         const uri = `litecoin:${ltcAddress}`;
 
 
         return uri;
 
       } else {
-      //  const uri = `litecoin:${ltcAddress}?amount=${amount}&label=cyto%20wallet%20receive`;
+        //  const uri = `litecoin:${ltcAddress}?amount=${amount}&label=cyto%20wallet%20receive`;
         const uri = `litecoin:${ltcAddress}?amount=${amount}`;
 
         return uri;
@@ -491,7 +491,7 @@ export default {
         "message": message
       });
 
-     const  runtimeconfig = useRuntimeConfig();
+      const runtimeconfig = useRuntimeConfig();
       const baseurl = runtimeconfig.public.apiBase;
       const uri = baseurl + '/api/Utilities/Encrypt';
 
@@ -534,24 +534,26 @@ export default {
       console.log('encryptedResponse: ', encryptedResponse);
 
 
+
       console.log('cipher passphrase to use: ', cipheredPassPhrase);
       let data = JSON.stringify({
         "toAddress": this.recipientAddress,
         "amount": this.sendingAmount,
-        "comment": this.comment
+        "comment": this.comment,
+        "fromAddress": this.address
       });
 
-      const  runtimeconfig = useRuntimeConfig();
+      const runtimeconfig = useRuntimeConfig();
       const baseurl = runtimeconfig.public.apiBase;
 
-      const uri = baseurl + '/api/Litecoin/Send-from-wallet';
+      const uri = baseurl + '/api/Litecoin/Send-from-wallet-address';
 
       let config = {
         method: 'post',
         maxBodyLength: Infinity,
         url: uri,
         headers: {
-          'passphrase': cipheredPassPhrase,
+          'encryptedpassphrase': cipheredPassPhrase,
           'wallet': this.walletName,
           'Content-Type': 'application/json'
         },
